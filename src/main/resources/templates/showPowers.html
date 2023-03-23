@@ -1,0 +1,22 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+  <link th:href="@{/main.css}" rel="stylesheet">
+</head>
+<body>
+<div align="center">
+  <h1 th:text="${hero.heroName}"/> <br/>
+
+  <table>
+    <tr th:each="p : ${hero.heroPowers}">
+      <td th:text="${p}"></td>
+    </tr>
+
+  </table>
+
+</div>
+<button><a th:href="@{'http://localhost:8081/Superhero/overview'}">Return to overview</a></button>
+</body>
+</html>

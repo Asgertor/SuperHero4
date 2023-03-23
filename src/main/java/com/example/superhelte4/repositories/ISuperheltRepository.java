@@ -1,6 +1,7 @@
 package com.example.superhelte4.repositories;
 
 import com.example.superhelte4.DTO.HeroCityDTO;
+import com.example.superhelte4.DTO.HeroFormDTO;
 import com.example.superhelte4.DTO.HeroPowerCountDTO;
 import com.example.superhelte4.DTO.HeroPowersDTO;
 import com.example.superhelte4.model.SuperHero;
@@ -15,4 +16,7 @@ public interface ISuperheltRepository {
     HeroPowersDTO showSpecificHeroPowers(String superHeroName);
 
     HeroCityDTO showSpecificHeroCity(String superHeroName);
+
+
+
 }

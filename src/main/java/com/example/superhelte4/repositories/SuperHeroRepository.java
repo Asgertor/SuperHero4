@@ -1,6 +1,7 @@
 package com.example.superhelte4.repositories;
 
 import com.example.superhelte4.DTO.HeroCityDTO;
+import com.example.superhelte4.DTO.HeroFormDTO;
 import com.example.superhelte4.DTO.HeroPowerCountDTO;
 import com.example.superhelte4.DTO.HeroPowersDTO;
 import com.example.superhelte4.model.SuperHero;
@@ -86,6 +87,29 @@ public class SuperHeroRepository implements ISuperheltRepository {
         } catch (SQLException e) {
             throw new RuntimeException(e);
         }
+    }public HeroPowersDTO deleteSpecificHero(String superHeroName) {
+        try (Connection con = DriverManager.getConnection("jdbc:mysql://localhost:3306/SuperHeroDB", "root", "Tor42Am41")) {
+            String SQL = "SELECT heroName, realName, superPowerName " +
+                    "FROM SuperHero sh " +
+                    "LEFT JOIN SuperPowerLinkTable spl ON sh.id = spl.superHeroID " +
+                    "LEFT JOIN Superpower sp ON spl.superPowerID = sp.id " +
+                    "WHERE heroName = ?;";
+            PreparedStatement ps = con.prepareStatement(SQL);
+            ps.setString(1, superHeroName);
+            ResultSet rs = ps.executeQuery();
+
+            HeroPowersDTO tempSuperHero = null;
+            ArrayList<String> superPowers = new ArrayList<>();
+            while (rs.next()) {
+                String heroName = rs.getString("heroName");
+                String realName = rs.getString("realName");
+                superPowers.add(rs.getString("superPowerName"));
+                tempSuperHero = new HeroPowersDTO(realName, heroName, superPowers);
+            }
+            return tempSuperHero;
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
+        }
     }
 
     public HeroCityDTO showSpecificHeroCity(String superHeroName) {
@@ -108,6 +132,61 @@ public class SuperHeroRepository implements ISuperheltRepository {
             throw new RuntimeException(e);
         }
     }
+    public void addSuperHero(HeroFormDTO form) {
+        try (Connection con = DriverManager.getConnection("jdbc:mysql://localhost:3306/SuperHeroDB", "root", "Tor42Am41")) {
+            // ID's
+            int cityId = 0;
+            int heroId = 0;
+            List<Integer> powerIDs = new ArrayList<>();
+
+            // find city_id
+            String SQL1 = "select id from City where cityName = ?;";
+            PreparedStatement pstmt = con.prepareStatement(SQL1);
+            pstmt.setString(1, form.getCity());
+            ResultSet rs = pstmt.executeQuery();
+            if (rs.next()) {
+                cityId = rs.getInt("id");
+            }
+
+            // insert row in superhero table
+            String SQL2 = "insert into SuperHero (heroName, realName, creationYear, cityID) values(?, ?, ?, ?);";
+            pstmt = con.prepareStatement(SQL2, Statement.RETURN_GENERATED_KEYS); // return autoincremented key
+            pstmt.setString(1, form.getHeroName());
+            pstmt.setString(2, form.getRealName());
+            pstmt.setInt(3, form.getCreationYear());
+            pstmt.setInt(4, cityId);
+            int rows = pstmt.executeUpdate();
+            rs = pstmt.getGeneratedKeys();
+            if (rs.next()) {
+                heroId = rs.getInt(1);
+            }
+            // find power_ids
+            String SQL3 = "select id from Superpower where superPowerName = ?;";
+            pstmt = con.prepareStatement(SQL3);
+
+            for (String power : form.getPowerList()) {
+                pstmt.setString(1, power);
+                rs = pstmt.executeQuery();
+                if (rs.next()) {
+                    powerIDs.add(rs.getInt("id"));
+                }
+            }
+
+            // insert entries in superhero_powers join table
+            String SQL4 = "insert into SuperPowerLinkTable values (?,?);";
+            pstmt = con.prepareStatement(SQL4);
+
+            for (int i = 0; i < powerIDs.size(); i++) {
+                pstmt.setInt(1, heroId);
+                pstmt.setInt(2, powerIDs.get(i));
+                rows = pstmt.executeUpdate();
+            }
+
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
 }
 /*
     @Override

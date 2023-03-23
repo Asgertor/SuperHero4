@@ -4,10 +4,10 @@ import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 
 @SpringBootApplication
-public class SuperHelte4Application {
+public class SuperHelte5Application {
 
     public static void main(String[] args) {
-        SpringApplication.run(SuperHelte4Application.class, args);
+        SpringApplication.run(SuperHelte5Application.class, args);
     }
 
 }
